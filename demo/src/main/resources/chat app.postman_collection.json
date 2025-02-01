@@ -795,7 +795,7 @@
 			"name": "messages",
 			"item": [
 				{
-					"name": "get channel members",
+					"name": "get user-friend messages",
 					"event": [
 						{
 							"listen": "test",
@@ -856,7 +856,117 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "",
+						"url": {
+							"raw": "http://localhost:8165/api/messages?userId=1&friendId=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8165",
+							"path": [
+								"api",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "friendId",
+									"value": "2"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "get user-channel messages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var template = `",
+									"<style type=\"text/css\">",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+									"    .tftable tr {background-color:#ffffff;}",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+									"    .tftable tr:hover {background-color:#e0ffff;}",
+									"</style>",
+									"",
+									"<table class=\"tftable\" border=\"1\">",
+									"    <tr>",
+									"        <th>ID</th>",
+									"        <th>Channel ID</th>",
+									"        <th>Channel Name</th>",
+									"        <th>Owner ID</th>",
+									"        <th>Owner Username</th>",
+									"        <th>User ID</th>",
+									"        <th>User Username</th>",
+									"        <th>Role</th>",
+									"        <th>Joined At</th>",
+									"    </tr>",
+									"    ",
+									"    {{#each response.data}}",
+									"        <tr>",
+									"            <td>{{id}}</td>",
+									"            <td>{{channel.id}}</td>",
+									"            <td>{{channel.name}}</td>",
+									"            <td>{{channel.owner.id}}</td>",
+									"            <td>{{channel.owner.username}}</td>",
+									"            <td>{{user.id}}</td>",
+									"            <td>{{user.username}}</td>",
+									"            <td>{{role}}</td>",
+									"            <td>{{joinedAt}}</td>",
+									"        </tr>",
+									"    {{/each}}",
+									"</table>",
+									"`;",
+									"",
+									"function constructVisualizerPayload() {",
+									"    return {response: pm.response.json()}",
+									"}",
+									"",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8165/api/messages/channel?userId=1&channelId=7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8165",
+							"path": [
+								"api",
+								"messages",
+								"channel"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "channelId",
+									"value": "7"
+								}
+							]
+						},
 						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
 					},
 					"response": []
