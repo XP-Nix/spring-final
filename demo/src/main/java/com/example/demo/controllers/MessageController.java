@@ -72,15 +72,49 @@ public class MessageController {
     }
 
 
-    @GetMapping("/tochannel/{channelId}")
-    public List<MessageModel> getChannelMessages(@PathVariable Integer channelId) {
-        return messageService.getChannelMessages(channelId);
-    }
+//    @GetMapping("/tochannel/{channelId}")
+//    public List<MessageModel> getChannelMessages(@PathVariable Integer channelId) {
+//        return messageService.getChannelMessages(channelId);
+//    }
 
     //@GetMapping("/direct")
     //public List<MessageModel> getDirectMessages(@RequestParam Integer userId1, @RequestParam Integer userId2) {
     //    return messageService.getDirectMessages(userId1, userId2);
     //}
+
+
+    @GetMapping
+    public ResponseEntity<?> getMessages(@RequestParam Integer userId,
+                                         @RequestParam Integer friendId) {
+
+        // Check if users are friends
+        if (!friendshipService.areFriends(userId, friendId)) {
+            return AppResponse.error()
+                    .withMessage("You can only view messages exchanged with friends.")
+                    .build();
+        }
+
+        // Fetch messages
+        List<MessageModel> messages = messageService.getMessagesWithFriend(userId, friendId);
+
+        return ResponseEntity.ok(messages);
+    }
+    @GetMapping("/channel")
+    public ResponseEntity<?> getMessagesInChannel(@RequestParam Integer userId,
+                                                  @RequestParam Integer channelId) {
+
+        // Check if the user is a member of the channel
+        if (!channelMembershipService.isMember(userId, channelId)) {
+            return AppResponse.error()
+                    .withMessage("You can only view messages in channels you are a member of.")
+                    .build();
+        }
+
+        // Fetch messages from the channel
+        List<MessageModel> messages = messageService.getChannelMessages(channelId);
+
+        return ResponseEntity.ok(messages);
+    }
 
 
 }

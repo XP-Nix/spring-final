@@ -12,8 +12,15 @@ public interface MessageRepository extends JpaRepository<MessageModel,Integer> {
 
     List<MessageModel> findByChannelId(Integer channelId);
 
+//    @Query("SELECT m FROM Message m WHERE " +
+//            "(m.senderId = :userId AND m.recipientId = :friendId) OR " +
+//            "(m.senderId = :friendId AND m.recipientId = :userId) " +
+//            "ORDER BY m.timestamp ASC")
+//    List<Message> findMessagesBetweenUsers(@Param("userId") Integer userId,
+//                                           @Param("friendId") Integer friendId);
+
     //direct messages between two users
-    //List<MessageModel> findBySenderIdAndRecipientIdOrRecipientIdAndSenderIdOrderBySentAtAsc(
-    //        Integer senderId, Integer recipientId, Integer recipientId2, Integer senderId2);
+    List<MessageModel> findBySenderIdAndRecipientId(
+            Integer senderId, Integer recipientId);
 
 }
