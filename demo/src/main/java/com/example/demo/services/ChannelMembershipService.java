@@ -86,11 +86,11 @@ public class ChannelMembershipService {
     }
 
 
+    public ChannelMembershipModel getMembership(Integer channelId, Integer userId) {
+        return membershipRepository.findByChannelIdAndUserId(channelId, userId);
+    }
 
-
-
-
-
-
-
+    public boolean isMember(Integer userId, Integer channelId) {
+        return membershipRepository.existsByUserIdAndChannelId(userId, channelId);
+    }
 }

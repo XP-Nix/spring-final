@@ -7,6 +7,8 @@ import com.example.demo.models.ChannelMembershipModel;
 import com.example.demo.models.ChannelModel;
 import com.example.demo.models.UserModel;
 import com.example.demo.services.ChannelMembershipService;
+import com.example.demo.services.ChannelService;
+import com.example.demo.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +20,14 @@ import java.util.ArrayList;
 public class ChannenMembershipController {
 
     private final ChannelMembershipService membershipService;
+    private final UserService userService;
+    private final ChannelService channelService;
 
 
-    public ChannenMembershipController(ChannelMembershipService membershipService) {
+    public ChannenMembershipController(ChannelMembershipService membershipService, UserService userService, ChannelService channelService) {
         this.membershipService = membershipService;
+        this.userService = userService;
+        this.channelService = channelService;
     }
 
 
@@ -84,21 +90,61 @@ public class ChannenMembershipController {
 
 
     //DELETE
-    @DeleteMapping
-    public ResponseEntity<?> removeMember(@RequestParam Integer channelId, @RequestParam Integer userId) {
+//    @DeleteMapping
+//    public ResponseEntity<?> removeMember(@RequestParam Integer channelId, @RequestParam Integer userId) {
+//
+//
+//        if(!this.membershipService.removeMember(channelId, userId)) {
+//            return AppResponse.error()
+//                    .withMessage("user not found")
+//                    .build();
+//        }
+//
+//        return AppResponse.success()
+//                .withMessage("Remove successful")
+//                .build();
+//
+//
+//    }
+    //remove per exam request
+    @DeleteMapping("/{channelId}")
+    public ResponseEntity<?> removeGuestFromChannel(
+            @PathVariable Integer channelId,
+            @RequestParam Integer userId,
+            @RequestParam Integer guestId) {
 
+        UserModel user = this.userService.getUser(userId);
+        UserModel guest = this.userService.getUser(guestId);
+        ChannelModel channel = this.channelService.getChannelById(channelId);
 
-        if(!this.membershipService.removeMember(channelId, userId)) {
+        // validate
+        if (user == null || guest == null || channel == null) {
             return AppResponse.error()
-                    .withMessage("user not found")
+                    .withMessage("Invalid owner, guest, or channel")
                     .build();
         }
+
+        // check owner
+        if (!user.equals(channel.getOwner())) {
+            return AppResponse.error()
+                    .withMessage("Only the owner can remove guests from this channel")
+                    .build();
+        }
+
+        // check guest
+        ChannelMembershipModel membership = this.membershipService.getMembership(channelId, guestId);
+        if (membership == null || !membership.getRole().equals("GUEST")) {
+            return AppResponse.error()
+                    .withMessage("User is not a guest in this channel")
+                    .build();
+        }
+
+
+        this.membershipService.removeMember(channelId, guestId);
 
         return AppResponse.success()
                 .withMessage("Remove successful")
                 .build();
-
-
     }
 
 }

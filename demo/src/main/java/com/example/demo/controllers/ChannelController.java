@@ -3,8 +3,10 @@ package com.example.demo.controllers;
 
 import com.example.demo.http.AppResponse;
 import com.example.demo.models.ChannelModel;
+import com.example.demo.models.UserModel;
 import com.example.demo.services.ChannelMembershipService;
 import com.example.demo.services.ChannelService;
+import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,18 +22,19 @@ public class ChannelController {
 
     private final ChannelService channelService;
     private final ChannelMembershipService channelMembershipService;
+    private final UserService userService;
 
     //@Autowired
-    public ChannelController(ChannelService channelService, ChannelMembershipService channelMembershipService) {
+    public ChannelController(ChannelService channelService, ChannelMembershipService channelMembershipService, UserService userService) {
         this.channelService = channelService;
         this.channelMembershipService = channelMembershipService;
+        this.userService = userService;
     }
 
     @PostMapping
     public ResponseEntity<?> createChannel(@RequestBody ChannelModel channel) {
 
-        // if you create a channel you are the owner
-        //call join channel and change role
+
         if (channelService.createChannel(channel)){
 
             this.channelMembershipService.addMember(channel.getId(),channel.getOwner().getId(),"ADMIN");
@@ -89,7 +92,17 @@ public class ChannelController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteChannel(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteChannel(@PathVariable Integer id,@RequestParam Integer userid) {
+        UserModel currentUser = this.userService.getUser(userid);
+        ChannelModel currentChannel = this.channelService.getChannelById(id);
+
+
+        if (currentUser == null || !currentUser.equals(currentChannel.getOwner())) {
+            return AppResponse.error()
+                    .withMessage("Only the owner can delete the channel")
+                    .build();
+        }
+
         boolean isUpdateSuccessful =  this.channelService.deleteChannel(id);
 
         if(!isUpdateSuccessful) {

@@ -3,6 +3,8 @@ package com.example.demo.controllers;
 
 import com.example.demo.http.AppResponse;
 import com.example.demo.models.MessageModel;
+import com.example.demo.services.ChannelMembershipService;
+import com.example.demo.services.FriendshipService;
 import com.example.demo.services.MessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,30 +17,60 @@ import java.util.List;
 public class MessageController {
 
     private final MessageService messageService;
+    private final FriendshipService friendshipService;
+    private final ChannelMembershipService channelMembershipService;
 
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, FriendshipService friendshipService, ChannelMembershipService channelMembershipService) {
         this.messageService = messageService;
+        this.friendshipService = friendshipService;
+        this.channelMembershipService = channelMembershipService;
     }
 
 
     @PostMapping
-    public ResponseEntity<?> sendMessage(@RequestParam Integer senderId, @RequestParam(required = false) Integer channelId, @RequestParam(required = false) Integer recipientId, @RequestBody String content) {
+    public ResponseEntity<?> sendMessage(@RequestParam Integer senderId,
+                                         @RequestParam(required = false) Integer recipientId,
+                                         @RequestParam(required = false) Integer channelId,
+                                         @RequestBody String content) {
 
+        // Ensure either recipientId or channelId is provided, but not both
+        if ((recipientId == null && channelId == null) || (recipientId != null && channelId != null)) {
+            return AppResponse.error()
+                    .withMessage("You must specify either a recipient or a channel, but not both.")
+                    .build();
+        }
 
+        // If sending a private message, check if users are friends
+        if (recipientId != null) {
+            if (!friendshipService.areFriends(senderId, recipientId)) {
+                return AppResponse.error()
+                        .withMessage("You can only send messages to friends.")
+                        .build();
+            }
+        }
 
-        if(messageService.sendMessage(senderId, channelId, recipientId, content)) {
+        // If sending a channel message, check if the sender is a channel member
+        if (channelId != null) {
+            if (!channelMembershipService.isMember(senderId, channelId)) {
+                return AppResponse.error()
+                        .withMessage("You can only send messages in channels you are a member of.")
+                        .build();
+            }
+        }
 
+        // Send the message
+        if (messageService.sendMessage(senderId, channelId, recipientId, content)) {
             return AppResponse.success()
-                    .withMessage("User created successfully")
+                    .withMessage("Message sent successfully")
                     .build();
         }
 
         return AppResponse.error()
-                .withMessage("User could not be created")
+                .withMessage("Message could not be sent")
                 .build();
-
     }
+
 
     @GetMapping("/tochannel/{channelId}")
     public List<MessageModel> getChannelMessages(@PathVariable Integer channelId) {

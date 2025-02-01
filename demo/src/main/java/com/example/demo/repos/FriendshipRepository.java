@@ -1,6 +1,7 @@
 package com.example.demo.repos;
 
 import com.example.demo.models.FriendshipModel;
+import com.example.demo.models.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,6 @@ public interface FriendshipRepository extends JpaRepository<FriendshipModel, Lon
 
     // Find friendships by both user and friend to handle specific queries
     FriendshipModel findByUserIdAndFriendId(Integer userId, Integer friendId);
+
+    boolean existsByUserAndFriend(UserModel userModel, UserModel userModel1);
 }
