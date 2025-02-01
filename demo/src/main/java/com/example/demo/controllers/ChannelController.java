@@ -37,7 +37,7 @@ public class ChannelController {
 
         if (channelService.createChannel(channel)){
 
-            this.channelMembershipService.addMember(channel.getId(),channel.getOwner().getId(),"ADMIN");
+            this.channelMembershipService.addMember(channel.getId(),channel.getOwner().getId(),"OWNER");
 
 
             return AppResponse.success()
@@ -76,27 +76,38 @@ public class ChannelController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateChannel(@PathVariable Integer id, @RequestBody ChannelModel channelDetails) {
+    public ResponseEntity<?> updateChannel(@PathVariable Integer id,
+                                           @RequestBody ChannelModel channelDetails,
+                                           @RequestParam Integer userId) {
 
-        boolean isUpdateSuccessful =  this.channelService.updateChannel(id,channelDetails);
-
-        if(!isUpdateSuccessful) {
+        // Check if the user has the "GUEST" role
+        if (channelMembershipService.hasRole(userId, id, "GUEST")) {
             return AppResponse.error()
-                    .withMessage("channel data not found")
+                    .withMessage("Users with GUEST role cannot update the channel name.")
+                    .build();
+        }
+
+        // Proceed with channel update
+        boolean isUpdateSuccessful = this.channelService.updateChannel(id, channelDetails);
+
+        if (!isUpdateSuccessful) {
+            return AppResponse.error()
+                    .withMessage("Channel data not found or update failed.")
                     .build();
         }
 
         return AppResponse.success()
-                .withMessage("channel successful")
+                .withMessage("Channel updated successfully.")
                 .build();
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteChannel(@PathVariable Integer id,@RequestParam Integer userid) {
         UserModel currentUser = this.userService.getUser(userid);
         ChannelModel currentChannel = this.channelService.getChannelById(id);
 
-
+        //only owner can delete
         if (currentUser == null || !currentUser.equals(currentChannel.getOwner())) {
             return AppResponse.error()
                     .withMessage("Only the owner can delete the channel")

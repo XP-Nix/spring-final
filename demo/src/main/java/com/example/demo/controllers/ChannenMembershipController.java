@@ -34,8 +34,15 @@ public class ChannenMembershipController {
     //CREATE
     @PostMapping
 //    public ResponseEntity<?> addMember(@RequestParam Integer channelId, @RequestParam Integer userId, @RequestParam(defaultValue = "GUEST") String role) {
-    public ResponseEntity<?> addMember(@RequestBody JoinRequest request) {
+    public ResponseEntity<?> addMember(@RequestBody JoinRequest request,@RequestParam Integer currentUserId) {
 
+
+
+        if (this.membershipService.hasRole(currentUserId, request.getChannelId(), "GUEST")) {
+            return AppResponse.error()
+                    .withMessage("Users with GUEST role cannot add other members.")
+                    .build();
+        }
 
         if(this.membershipService.addMember(request.getChannelId(), request.getUserId(), request.getRole())) {
 
@@ -67,21 +74,36 @@ public class ChannenMembershipController {
 //UPDATE
 
     @PutMapping
-    public ResponseEntity<?> updateMembers(@RequestParam Integer channelid,@RequestParam Integer userid ,@RequestParam String role) {
+    public ResponseEntity<?> updateMembers(@RequestParam Integer channelId,
+                                           @RequestParam Integer userId,
+                                           @RequestParam String role,
+                                           @RequestParam Integer currentUserId) {
+
+        UserModel currentUser = this.userService.getUser(currentUserId);
+        ChannelModel channel = this.channelService.getChannelById(channelId);
 
 
-        boolean isUpdateSuccessful =  this.membershipService.updateRole(channelid,userid,role);
-
-        if(!isUpdateSuccessful) {
+        // check owner
+        if (!currentUser.equals(channel.getOwner())) {
             return AppResponse.error()
-                    .withMessage("channel data not found")
+                    .withMessage("Only the owner can update guests from this channel")
+                    .build();
+        }
+
+
+        boolean isUpdateSuccessful = this.membershipService.updateRole(channelId, userId, role);
+
+        if (!isUpdateSuccessful) {
+            return AppResponse.error()
+                    .withMessage("Channel data not found or role update failed.")
                     .build();
         }
 
         return AppResponse.success()
-                .withMessage("channel successful")
+                .withMessage("Channel role updated successfully.")
                 .build();
     }
+
 
 
 

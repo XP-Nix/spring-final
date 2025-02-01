@@ -93,4 +93,9 @@ public class ChannelMembershipService {
     public boolean isMember(Integer userId, Integer channelId) {
         return membershipRepository.existsByUserIdAndChannelId(userId, channelId);
     }
+
+    public boolean hasRole(Integer userId, Integer channelId, String role) {
+        ChannelMembershipModel membership = membershipRepository.findByUserIdAndChannelId(userId, channelId);
+        return membership != null && membership.getRole().equals(role);
+    }
 }
