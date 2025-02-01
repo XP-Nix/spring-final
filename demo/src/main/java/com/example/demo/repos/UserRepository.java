@@ -13,5 +13,4 @@ public interface UserRepository extends JpaRepository<UserModel,Integer> {
     UserModel findByIdAndIsDeleted(int id, int isDeleted);
 
     UserModel findByUsername(String username);
-    //Optional<UserModel> findByIdCustom(int id);
 }

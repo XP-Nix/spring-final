@@ -41,7 +41,7 @@ public class MessageController {
                     .build();
         }
 
-        // If sending a private message, check if users are friends
+        //if they users are friends
         if (recipientId != null) {
             if (!friendshipService.areFriends(senderId, recipientId)) {
                 return AppResponse.error()
@@ -50,7 +50,7 @@ public class MessageController {
             }
         }
 
-        // If sending a channel message, check if the sender is a channel member
+        //if the sender is a channel member
         if (channelId != null) {
             if (!channelMembershipService.isMember(senderId, channelId)) {
                 return AppResponse.error()
@@ -103,14 +103,14 @@ public class MessageController {
     public ResponseEntity<?> getMessagesInChannel(@RequestParam Integer userId,
                                                   @RequestParam Integer channelId) {
 
-        // Check if the user is a member of the channel
+        //is user member
         if (!channelMembershipService.isMember(userId, channelId)) {
             return AppResponse.error()
                     .withMessage("You can only view messages in channels you are a member of.")
                     .build();
         }
 
-        // Fetch messages from the channel
+
         List<MessageModel> messages = messageService.getChannelMessages(channelId);
 
         return ResponseEntity.ok(messages);

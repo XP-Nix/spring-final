@@ -57,12 +57,7 @@ public class UserService {
         return this.userRepository.findByUsername(username);
     }
 
-//    public boolean getUserByUsername(String username) {
-//        if (this.userRepository.findByUsername(username)){
-//            return true;
-//        }
-//        return false;
-//    }
+
 
 
 

@@ -9,10 +9,9 @@ import java.util.List;
 
 @Repository
 public interface FriendshipRepository extends JpaRepository<FriendshipModel, Long> {
-    // Find friendships for a specific user
+
     List<FriendshipModel> findByUserId(Integer userId);
 
-    // Find friendships by both user and friend to handle specific queries
     FriendshipModel findByUserIdAndFriendId(Integer userId, Integer friendId);
 
     boolean existsByUserAndFriend(UserModel userModel, UserModel userModel1);

@@ -57,7 +57,7 @@ public class ChannenMembershipController {
 
     }
 
-    //works but returns too much useless info, might need a dto to clean it up later
+
     //GET
     @GetMapping("/channel/{channelId}")
     public ResponseEntity<?> getMembersByChannel(@PathVariable Integer channelId) {
@@ -105,29 +105,6 @@ public class ChannenMembershipController {
     }
 
 
-
-
-
-
-
-
-    //DELETE
-//    @DeleteMapping
-//    public ResponseEntity<?> removeMember(@RequestParam Integer channelId, @RequestParam Integer userId) {
-//
-//
-//        if(!this.membershipService.removeMember(channelId, userId)) {
-//            return AppResponse.error()
-//                    .withMessage("user not found")
-//                    .build();
-//        }
-//
-//        return AppResponse.success()
-//                .withMessage("Remove successful")
-//                .build();
-//
-//
-//    }
     //remove per exam request
     @DeleteMapping("/{channelId}")
     public ResponseEntity<?> removeGuestFromChannel(

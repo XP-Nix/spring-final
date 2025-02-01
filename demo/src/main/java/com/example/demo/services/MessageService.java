@@ -57,9 +57,7 @@ public class MessageService {
         return messageRepository.findBySenderIdAndRecipientId(userId, friendId);
     }
 
-    //public List<MessageModel> getDirectMessages(Integer userId1, Integer userId2) {
-    //    return messageRepository.findBySenderIdAndRecipientIdOrRecipientIdAndSenderIdOrderBySentAtAsc(userId1, userId2, userId1, userId2);
-    //}
+
 
 
 

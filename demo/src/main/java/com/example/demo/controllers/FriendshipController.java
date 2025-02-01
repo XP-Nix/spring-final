@@ -33,7 +33,6 @@ public class FriendshipController {
     @GetMapping("/{userId}")        //empty=500
     public ResponseEntity<?> getFriendships(@PathVariable Integer userId) {
 
-        //ArrayList<FriendshipModel> collection = (ArrayList<FriendshipModel>) this.friendshipService.getAllFriendshipsForUser(userId);
 
         List<FriendshipModel> dtoTest = this.friendshipService.getAllFriendshipsForUser(userId);
 
